@@ -362,7 +362,7 @@ function addLoadingMessage(){
 
 function updateLoading(percentage){
     l.classList.remove('hide')
-    l.textContent = `Loading ${percentage | 0}%`
+    l.textContent = `Loading ${percentage}%`
 }
 
 function hideLoading(){
