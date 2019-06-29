@@ -257,6 +257,7 @@ function init() {
     
     controls = new DeviceOrientationController( camera, renderer.domElement );
     controls.connect();
+    controls.enableManualDrag = false
 
     container.appendChild(renderer.domElement);
 
