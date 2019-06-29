@@ -179,11 +179,13 @@ function init() {
     hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
     hemiLight.position.set( -50, 50, -50 );
     scene.add( hemiLight );
-    var hemiLightHelper = new THREE.HemisphereLightHelper( hemiLight, 10 );
-    scene.add( hemiLightHelper );
+    // var hemiLightHelper = new THREE.HemisphereLightHelper( hemiLight, 10 );
+    // scene.add( hemiLightHelper );
 
-    hemiLight.visible = true
-    hemiLightHelper = true
+    //scene.background = new THREE.Color().setHSL( 0.6, 0, 1 );
+
+    //hemiLight.visible = true
+    //hemiLightHelper.visible = true
     //renderer.gammaOutput = true
     //oriSensor = new RelativeInclinationSensor({ frequency: 60, referenceFrame: "screen" });
     //oriSensor.onreading = render;   // When the sensor sends new values, render again using those
@@ -257,31 +259,31 @@ function init() {
         }
     );
 
-    loader.load(
-        // resource URL
-        'models/coke/scene.glb',
-        // called when the resource is loaded
-        function ( gltf ) {
-            hideLoading()
-            var model = gltf.scene;
-            scene.add(model);
-            model.position.y = -35;
-            model.position.x = -150;
-            model.position.z = -100;
-            model.visible = true
+    // loader.load(
+    //     // resource URL
+    //     'models/coke/scene.glb',
+    //     // called when the resource is loaded
+    //     function ( gltf ) {
+    //         hideLoading()
+    //         var model = gltf.scene;
+    //         scene.add(model);
+    //         model.position.y = -35;
+    //         model.position.x = -150;
+    //         model.position.z = -100;
+    //         model.visible = true
 
-            model.traverse( function ( object ) {
-                if ( object.isMesh ) object.castShadow = true;
-            } );
-        },
-        // called while loading is progressing
-        function ( xhr ) {
-            console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
-        },
-        function ( error ) {
-            console.log( 'An error happened', error );
-        }
-    );
+    //         model.traverse( function ( object ) {
+    //             if ( object.isMesh ) object.castShadow = true;
+    //         } );
+    //     },
+    //     // called while loading is progressing
+    //     function ( xhr ) {
+    //         console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+    //     },
+    //     function ( error ) {
+    //         console.log( 'An error happened', error );
+    //     }
+    // );
 
     loader.load(
         // resource URL
@@ -291,9 +293,11 @@ function init() {
             hideLoading()
             var model = gltf.scene;
             scene.add(model);
-            model.position.y = 10;
-            model.position.x = -40;
-            model.position.z = -20;
+            model.position.y = -5;
+            model.position.x = -20;
+            model.position.z = 0;
+
+            drone = model
             
             dogAnimationsMixer = new THREE.AnimationMixer( gltf.scene );
             gltf.animations.forEach(( clip ) => {
@@ -315,7 +319,7 @@ function init() {
 
     //TEST CUBE
     cube = new THREE.Mesh(new THREE.CubeGeometry(10, 10, 10), new THREE.MeshNormalMaterial());
-    cube.position.y = -25;
+    cube.position.y = -35;
     cube.position.x = -100;
     cube.position.z = 0;
     scene.add(cube);
@@ -340,6 +344,8 @@ function init() {
     render();
 }
 
+var drone;
+
 var t0, t1;
 function getDelta(){
     return Math.floor((Date.now() - t0) / 1000)
@@ -356,7 +362,7 @@ function addLoadingMessage(){
 
 function updateLoading(percentage){
     l.classList.remove('hide')
-    l.textContent = `${Math.floor(percentage)}% Loading...`
+    l.textContent = `Loading ${percentage | 0}%`
 }
 
 function hideLoading(){
@@ -374,6 +380,14 @@ function render() {
         beeModel.rotation.y += 0.005
         //model.position.z += 0.08
         beeModel.translateZ(0.5)
+    }
+
+    if(drone){
+        //drone.rotation.y -= 0.008
+        //model.position.z += 0.08
+        //drone.translateZ(0.1)
+        drone.translateX(0.1)
+        drone.lookAt(camera.position)
     }
 
     controls.update();
