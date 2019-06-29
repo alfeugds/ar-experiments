@@ -201,12 +201,16 @@ function init() {
 
     var loader = new THREE.GLTFLoader();
 
+    addLoadingMessage()
+
     // Load a glTF resource
     loader.load(
         // resource URL
         'models/bee/Bee.glb',
         // called when the resource is loaded
         function ( gltf ) {
+
+            hideLoading()
 
             model = gltf.scene;
 
@@ -231,10 +235,12 @@ function init() {
         function ( xhr ) {
 
             console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+            updateLoading( xhr.loaded / xhr.total * 100 )
 
         },
         // called when loading has errors
         function ( error ) {
+            hideLoading()
 
             console.log( 'An error happened', error );
 
@@ -271,6 +277,24 @@ function init() {
 var t0, t1;
 function getDelta(){
     return Math.floor((Date.now() - t0) / 1000)
+}
+
+var l;
+
+function addLoadingMessage(){
+    l = document.createElement('p')
+    l.classList.add('loading')
+    l.textContent = "Loading..."
+    document.body.appendChild(l)
+}
+
+function updateLoading(percentage){
+    l.classList.remove('hide')
+    l.textContent = `${Math.floor(percentage)}% Loading...`
+}
+
+function hideLoading(){
+    l.classList.add('hide')
 }
 
 // Renders the scene, orienting the camera according to the longitude and latitude
