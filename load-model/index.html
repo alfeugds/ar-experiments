@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+	<head>
+        <link rel="manifest" href="manifest.json" />
+        <meta charset="utf-8">
+        <meta name="viewport" content="user-scalable=no, initial-scale=1">
+        <title>AR Experiment - Load Model</title>
+		<style>
+			body {  
+				margin: 0;
+			}
+            canvas {
+                display: block;  /* prevents scrollbar */
+                width: 100vw;
+                height: 100vh;
+            }
+            #no-sensors {
+                color: white;
+                position: absolute;
+                top: 0vh;
+                left: 0vw;
+                display: none;  /* Hidden by default */
+                z-index: 2;
+            }
+		</style>
+        <script src="scripts/three.min.js"></script>
+        <script src="scripts/GLTFLoader.js"></script>
+        <script src="scripts/LoaderUtils.js"></script>
+        <script src="scripts/DeviceOrientationController.js"></script>
+        <script src="scripts/kalman.min.js"></script>
+	</head>
+	<body>
+		<div id="app-view"></div>
+        <div id="no-sensors">Your browser doesn't seem to support generic sensors. If you are running Chrome, please enable the Generic Sensor API in about:flags to run this demo.</div>
+        <video id="video" width="1" height="1" style="visibility: hidden; float:left; position: absolute; top: 0;">Video stream not available.</video>
+
+        <canvas id="video_canvas" width="2" height="2" style=" float:left; display: none;"></canvas>
+		<script src="app.js"></script>
+	</body>
+</html>
+
