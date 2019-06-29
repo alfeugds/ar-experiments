@@ -293,7 +293,7 @@ function init() {
             hideLoading()
             var model = gltf.scene;
             scene.add(model);
-            model.position.y = -5;
+            model.position.y = -15;
             model.position.x = -20;
             model.position.z = 0;
 
@@ -362,7 +362,8 @@ function addLoadingMessage(){
 
 function updateLoading(percentage){
     l.classList.remove('hide')
-    l.textContent = `Loading ${percentage}%`
+    //l.textContent = `Loading ${percentage}%`
+    l.textContent = `Loading...`
 }
 
 function hideLoading(){
