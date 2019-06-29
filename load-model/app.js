@@ -204,7 +204,7 @@ function init() {
     // Load a glTF resource
     loader.load(
         // resource URL
-        'models/bee/bee.glb',
+        'models/bee/Bee.glb',
         // called when the resource is loaded
         function ( gltf ) {
 
