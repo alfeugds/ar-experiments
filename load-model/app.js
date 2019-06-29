@@ -28,7 +28,8 @@ var camera, scene, renderer, oriSensor,
 
     controls,
     mixer,
-    model,
+    dogAnimationsMixer,
+    beeModel,
 
     canvas, canvas_context, video, video_canvas;
 
@@ -168,9 +169,21 @@ function init() {
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
 
+    renderer.gammaOutput = true;
+    //renderer.gammaFactor = 2;
+    renderer.shadowMap.enabled = true;
 
-    var light = new THREE.AmbientLight( 0x404040, 2 ); // soft white light
-    scene.add( light );
+
+    var hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 1 );
+    hemiLight.color.setHSL( 0.6, 1, 0.6 );
+    hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
+    hemiLight.position.set( -50, 50, -50 );
+    scene.add( hemiLight );
+    var hemiLightHelper = new THREE.HemisphereLightHelper( hemiLight, 10 );
+    scene.add( hemiLightHelper );
+
+    hemiLight.visible = true
+    hemiLightHelper = true
     //renderer.gammaOutput = true
     //oriSensor = new RelativeInclinationSensor({ frequency: 60, referenceFrame: "screen" });
     //oriSensor.onreading = render;   // When the sensor sends new values, render again using those
@@ -203,17 +216,14 @@ function init() {
 
     addLoadingMessage()
 
-    // Load a glTF resource
+    //Load a glTF resource
     loader.load(
         // resource URL
         'models/bee/Bee.glb',
         // called when the resource is loaded
         function ( gltf ) {
-
             hideLoading()
-
-            model = gltf.scene;
-
+            beeModel = gltf.scene;
             scene.add( gltf.scene );
             gltf.scene.position.y = -25;
             gltf.scene.position.x = -100;
@@ -247,6 +257,61 @@ function init() {
         }
     );
 
+    loader.load(
+        // resource URL
+        'models/coke/scene.glb',
+        // called when the resource is loaded
+        function ( gltf ) {
+            hideLoading()
+            var model = gltf.scene;
+            scene.add(model);
+            model.position.y = -35;
+            model.position.x = -150;
+            model.position.z = -100;
+            model.visible = true
+
+            model.traverse( function ( object ) {
+                if ( object.isMesh ) object.castShadow = true;
+            } );
+        },
+        // called while loading is progressing
+        function ( xhr ) {
+            console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+        },
+        function ( error ) {
+            console.log( 'An error happened', error );
+        }
+    );
+
+    loader.load(
+        // resource URL
+        'models/drone.glb',
+        // called when the resource is loaded
+        function ( gltf ) {
+            hideLoading()
+            var model = gltf.scene;
+            scene.add(model);
+            model.position.y = 10;
+            model.position.x = -40;
+            model.position.z = -20;
+            
+            dogAnimationsMixer = new THREE.AnimationMixer( gltf.scene );
+            gltf.animations.forEach(( clip ) => {
+                dogAnimationsMixer.clipAction(clip).play();
+            });
+
+            model.traverse( function ( object ) {
+                if ( object.isMesh ) object.castShadow = true;
+            } );
+        },
+        // called while loading is progressing
+        function ( xhr ) {
+            console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+        },
+        function ( error ) {
+            console.log( 'An error happened', error );
+        }
+    );
 
     //TEST CUBE
     cube = new THREE.Mesh(new THREE.CubeGeometry(10, 10, 10), new THREE.MeshNormalMaterial());
@@ -300,21 +365,22 @@ function hideLoading(){
 
 // Renders the scene, orienting the camera according to the longitude and latitude
 function render() {
-    // cube.rotation.x += 0.02;
-    // cube.rotation.y += 0.0225;
-    // cube.rotation.z += 0.0175;
+    cube.rotation.x += 0.02;
+    cube.rotation.y += 0.0225;
+    cube.rotation.z += 0.0175;
 
-    if(model){
+    if(beeModel){
         //model.position.y += 0.02
-        model.rotation.y += 0.005
+        beeModel.rotation.y += 0.005
         //model.position.z += 0.08
-        model.translateZ(0.5)
+        beeModel.translateZ(0.5)
     }
 
     controls.update();
 
     //mixer && mixer.update(getDelta())
     mixer && mixer.update(0.03)
+    dogAnimationsMixer && dogAnimationsMixer.update(0.03)    
 
     texture.needsUpdate = true;
 
