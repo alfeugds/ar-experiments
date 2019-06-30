@@ -85,7 +85,7 @@ function init() {
 
     mesh = new THREE.Mesh(videoGeometry, material);
     mesh.position.x = -0;
-    mesh.position.z = -window.innerWidth * 4;
+    mesh.position.z = -window.innerWidth * 3.5;
 
     scene.add(camera)
     camera.add(mesh)
@@ -100,10 +100,17 @@ function init() {
     //PARTICLES
     initParticles()
 
+    //MODELS
+    initModels()
+
+    //TEXT
+    initText()
+
     //CAMERA CONTROLS
     controls = new DeviceOrientationController(camera, renderer.domElement);
     controls.connect();
     controls.enableManualDrag = false
+    controls.enableManualZoom = false
 
     container.appendChild(renderer.domElement);
 
@@ -119,7 +126,7 @@ function init() {
 }
 
 
-var  materials = [], parameters
+var materials = [], parameters
 
 function initParticles() {
     var geometry = new THREE.BufferGeometry();
@@ -186,6 +193,120 @@ function renderParticles() {
     }
 }
 
+var giftModel
+function initModels() {
+    var loader = new THREE.GLTFLoader();
+
+    addLoadingMessage()
+
+    //Load a glTF resource
+    loader.load(
+        'models/Presente.glb',
+        function (gltf) {
+            hideLoading()
+            giftModel = gltf.scene;
+            scene.add(gltf.scene);
+            gltf.scene.position.y = -25;
+            gltf.scene.position.x = -40;
+            gltf.scene.position.z = -20;
+
+            gltf.scene.scale.x = 10
+            gltf.scene.scale.y = 10
+            gltf.scene.scale.z = 10
+        },
+        function (xhr) {
+            console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+            updateLoading(xhr.loaded / xhr.total * 100)
+        },
+        // called when loading has errors
+        function (error) {
+            hideLoading()
+            console.log('An error happened', error);
+        }
+    );
+}
+
+function renderModels() {
+    if (giftModel) {
+        //model.position.y += 0.02
+        giftModel.rotation.y += 0.02
+        //model.position.z += 0.08
+        //giftModel.translateZ(0.5)
+    }
+}
+
+function initText() {
+    var loader = new THREE.FontLoader();
+    loader.load('fonts/helvetiker_regular.typeface.json', function (font) {
+        var xMid, text;
+        var color = 0xd43737;
+        var matDark = new THREE.LineBasicMaterial({
+            color: color,
+            side: THREE.DoubleSide
+        });
+
+        var matLite = new THREE.MeshBasicMaterial({
+            color: color,
+            transparent: true,
+            opacity: 0.4,
+            side: THREE.DoubleSide
+        });
+
+        var message1 = "Look\nBehind you!";
+        var shapes1 = font.generateShapes(message1, 100);
+
+        var message = "Merry\nChristmas!";
+        var shapes = font.generateShapes(message, 100);
+
+        var geometry = new THREE.ShapeBufferGeometry(shapes1);
+        geometry.computeBoundingBox();
+        xMid = - 0.5 * (geometry.boundingBox.max.x - geometry.boundingBox.min.x);
+        geometry.translate(xMid, 0, 0);
+
+        // make shape ( N.B. edge view not visible )
+        text = new THREE.Mesh(geometry, matLite);
+        text.position.z = - 150;
+        text.position.x = - 550;
+        text.rotation.y += 0.8
+        //text.lookAt(camera.position)
+
+        scene.add(text);
+
+        // make line shape ( N.B. edge view remains visible )
+        var holeShapes = [];
+        for (var i = 0; i < shapes.length; i++) {
+            var shape = shapes[i];
+            if (shape.holes && shape.holes.length > 0) {
+                for (var j = 0; j < shape.holes.length; j++) {
+                    var hole = shape.holes[j];
+                    holeShapes.push(hole);
+                }
+            }
+        }
+
+        shapes.push.apply(shapes, holeShapes);
+
+        var lineText = new THREE.Object3D();
+
+        for (var i = 0; i < shapes.length; i++) {
+            var shape = shapes[i];
+            var points = shape.getPoints();
+            var geometry = new THREE.BufferGeometry().setFromPoints(points);
+            geometry.translate(xMid, 0, 0);
+            var lineMesh = new THREE.Line(geometry, matDark);
+            lineText.add(lineMesh);
+        }
+
+        lineText.position.z = 250;
+        lineText.position.x = 450;
+        //lineText.rotation.y += 0.8
+        lineText.lookAt(camera.position)
+
+        scene.add(lineText);
+
+    }); //end load function
+}
+
 var l;
 
 function addLoadingMessage() {
@@ -211,6 +332,7 @@ function render() {
     cube.rotation.z += 0.0175;
 
     renderParticles()
+    renderModels()
 
     controls.update();
     texture.needsUpdate = true;
