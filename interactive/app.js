@@ -207,8 +207,8 @@ function initModels() {
             giftModel = gltf.scene;
             scene.add(gltf.scene);
             gltf.scene.position.y = -25;
-            gltf.scene.position.x = -40;
-            gltf.scene.position.z = -20;
+            gltf.scene.position.x = 40;
+            gltf.scene.position.z = 20;
 
             gltf.scene.scale.x = 10
             gltf.scene.scale.y = 10
