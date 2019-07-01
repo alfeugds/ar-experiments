@@ -93,8 +93,8 @@ function init() {
     //TEST CUBE
     cube = new THREE.Mesh(new THREE.CubeGeometry(10, 10, 10), new THREE.MeshNormalMaterial());
     cube.position.y = -35;
-    cube.position.x = -100;
-    cube.position.z = 0;
+    cube.position.x = 0;
+    cube.position.z = -100;
     scene.add(cube);
 
     //PARTICLES
@@ -207,8 +207,8 @@ function initModels() {
             giftModel = gltf.scene;
             scene.add(gltf.scene);
             gltf.scene.position.y = -25;
-            gltf.scene.position.x = 40;
-            gltf.scene.position.z = 20;
+            gltf.scene.position.x = 0;
+            gltf.scene.position.z = 40;
 
             gltf.scene.scale.x = 10
             gltf.scene.scale.y = 10
@@ -247,15 +247,15 @@ function initText() {
 
         var matLite = new THREE.MeshBasicMaterial({
             color: color,
-            transparent: true,
-            opacity: 0.4,
+            transparent: false,
+            opacity: 0.99,
             side: THREE.DoubleSide
         });
 
         var message1 = "Look\nBehind you!";
         var shapes1 = font.generateShapes(message1, 100);
 
-        var message = "Merry\nChristmas!";
+        var message = getMessage();
         var shapes = font.generateShapes(message, 100);
 
         var geometry = new THREE.ShapeBufferGeometry(shapes1);
@@ -265,9 +265,10 @@ function initText() {
 
         // make shape ( N.B. edge view not visible )
         text = new THREE.Mesh(geometry, matLite);
-        text.position.z = - 150;
-        text.position.x = - 550;
-        text.rotation.y += 0.8
+        text.position.z = -750;
+        text.position.x = 150;
+        text.position.y = 20;
+        //text.rotation.y += 0.8
         //text.lookAt(camera.position)
 
         scene.add(text);
@@ -297,14 +298,45 @@ function initText() {
             lineText.add(lineMesh);
         }
 
-        lineText.position.z = 250;
-        lineText.position.x = 450;
+        lineText.position.z = 800;
+        lineText.position.x = -350;
+        lineText.position.y = 40;
         //lineText.rotation.y += 0.8
         lineText.lookAt(camera.position)
 
         scene.add(lineText);
 
+
+        var textGeo = new THREE.TextGeometry( 'Look up!', {
+            font: font,
+            size: 80,
+            height: 5,
+            curveSegments: 6,
+            bevelEnabled: true,
+            bevelThickness: 16,
+            bevelSize: 4,
+            bevelOffset: 0,
+            bevelSegments: 5
+        } );
+
+        textGeo = new THREE.BufferGeometry().fromGeometry( textGeo );
+        var textMesh1 = new THREE.Mesh( textGeo, materials );
+        textMesh1.position.y = -700;
+        textMesh1.position.z = -10;
+        textMesh1.position.x = 0;
+
+        textMesh1.lookAt(camera.position)
+        //textMesh1.rotation.x = 0;
+        //textMesh1.rotation.y = Math.PI * 2;
+        scene.add( textMesh1 );
+
     }); //end load function
+}
+
+function getMessage(){
+    const urlParams = new URLSearchParams(window.location.search);
+    const message = urlParams.get('m');
+    return message || 'Hello!\nSurprise!'
 }
 
 var l;
