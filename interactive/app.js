@@ -1,6 +1,6 @@
 /*
-*       AR Experiments using generic sensors
-*/
+ *       AR Experiments using generic sensors
+ */
 
 'use strict';
 
@@ -15,7 +15,8 @@ Don't take anything here too seriously
 */
 
 // Camera constants
-const farPlane = 2000, fov = 75;
+const farPlane = 2000,
+    fov = 75;
 
 // Required for a three.js scene
 var camera, scene, renderer,
@@ -34,9 +35,15 @@ canvas = document.getElementById('video_canvas');
 initWebcam();
 
 function initWebcam() {
+    console.log('starting video!')
     video = document.getElementById('video');
     canvas = document.getElementById('video_canvas');
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false })
+    navigator.mediaDevices.getUserMedia({
+            video: {
+                facingMode: 'environment'
+            },
+            audio: false
+        })
         .then(function (stream) {
             video.srcObject = stream;;
             video.play();
@@ -46,6 +53,7 @@ function initWebcam() {
         });
 
     video.onplaying = () => {
+        console.log('video playing')
         init()
     }
 }
@@ -76,7 +84,11 @@ function init() {
     texture = new THREE.VideoTexture(video);
     texture.minFilter = THREE.LinearFilter;
     texture.magFilter = THREE.LinearFilter;
-    material = new THREE.MeshBasicMaterial({ map: texture });
+    material = new THREE.MeshBasicMaterial({
+        map: texture
+    });
+
+    console.log('init camera')
 
     var aspect = video.videoWidth / video.videoHeight
     var width = window.innerWidth * 8
@@ -126,7 +138,8 @@ function init() {
 }
 
 
-var materials = [], parameters
+var materials = [],
+    parameters
 
 function initParticles() {
     var geometry = new THREE.BufferGeometry();
@@ -153,11 +166,21 @@ function initParticles() {
     geometry.addAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
 
     parameters = [
-        [[1.0, -0.2, 0.5], sprite2, 20],
-        [[0.95, -0.1, 0.5], sprite3, 15],
-        [[0.90, -0.05, 0.5], sprite1, 10],
-        [[0.85, 0, 0.5], sprite5, 8],
-        [[0.80, 0, 0.5], sprite4, 5]
+        [
+            [1.0, -0.2, 0.5], sprite2, 20
+        ],
+        [
+            [0.95, -0.1, 0.5], sprite3, 15
+        ],
+        [
+            [0.90, -0.05, 0.5], sprite1, 10
+        ],
+        [
+            [0.85, 0, 0.5], sprite5, 8
+        ],
+        [
+            [0.80, 0, 0.5], sprite4, 5
+        ]
     ];
 
     for (var i = 0; i < parameters.length; i++) {
@@ -166,7 +189,13 @@ function initParticles() {
         var sprite = parameters[i][1];
         var size = parameters[i][2];
 
-        materials[i] = new THREE.PointsMaterial({ size: size, map: sprite, blending: THREE.AdditiveBlending, depthTest: false, transparent: true });
+        materials[i] = new THREE.PointsMaterial({
+            size: size,
+            map: sprite,
+            blending: THREE.AdditiveBlending,
+            depthTest: false,
+            transparent: true
+        });
         materials[i].color.setHSL(color[0], color[1], color[2]);
 
         var particles = new THREE.Points(geometry, materials[i]);
@@ -188,12 +217,13 @@ function renderParticles() {
         var object = scene.children[i];
 
         if (object instanceof THREE.Points) {
-            object.rotation.y = time * (i < 4 ? i + 1 : - (i + 1));
+            object.rotation.y = time * (i < 4 ? i + 1 : -(i + 1));
         }
     }
 }
 
 var giftModel
+
 function initModels() {
     var loader = new THREE.GLTFLoader();
 
@@ -255,12 +285,9 @@ function initText() {
         var message1 = "Look\nBehind you!";
         var shapes1 = font.generateShapes(message1, 100);
 
-        var message = getMessage();
-        var shapes = font.generateShapes(message, 100);
-
         var geometry = new THREE.ShapeBufferGeometry(shapes1);
         geometry.computeBoundingBox();
-        xMid = - 0.5 * (geometry.boundingBox.max.x - geometry.boundingBox.min.x);
+        xMid = -0.5 * (geometry.boundingBox.max.x - geometry.boundingBox.min.x);
         geometry.translate(xMid, 0, 0);
 
         // make shape ( N.B. edge view not visible )
@@ -273,41 +300,61 @@ function initText() {
 
         scene.add(text);
 
-        // make line shape ( N.B. edge view remains visible )
-        var holeShapes = [];
-        for (var i = 0; i < shapes.length; i++) {
-            var shape = shapes[i];
-            if (shape.holes && shape.holes.length > 0) {
-                for (var j = 0; j < shape.holes.length; j++) {
-                    var hole = shape.holes[j];
-                    holeShapes.push(hole);
-                }
-            }
-        }
+        (function () {
+            var message = getMessage();
+            var shapes = font.generateShapes(message, 100);
 
-        shapes.push.apply(shapes, holeShapes);
-
-        var lineText = new THREE.Object3D();
-
-        for (var i = 0; i < shapes.length; i++) {
-            var shape = shapes[i];
-            var points = shape.getPoints();
-            var geometry = new THREE.BufferGeometry().setFromPoints(points);
+            var geometry = new THREE.ShapeBufferGeometry(shapes);
+            geometry.computeBoundingBox();
+            xMid = -0.5 * (geometry.boundingBox.max.x - geometry.boundingBox.min.x);
             geometry.translate(xMid, 0, 0);
-            var lineMesh = new THREE.Line(geometry, matDark);
-            lineText.add(lineMesh);
-        }
 
-        lineText.position.z = 800;
-        lineText.position.x = -350;
-        lineText.position.y = 40;
-        //lineText.rotation.y += 0.8
-        lineText.lookAt(camera.position)
+            // make shape ( N.B. edge view not visible )
+            text = new THREE.Mesh(geometry, matLite);
+            text.position.z = 800;
+            text.position.x = -350;
+            text.position.y = 40;
+            //text.rotation.y += 0.8
+            text.lookAt(camera.position)
 
-        scene.add(lineText);
+            scene.add(text);
+        })()
+
+        // // make line shape ( N.B. edge view remains visible )
+        // var holeShapes = [];
+        // for (var i = 0; i < shapes.length; i++) {
+        //     var shape = shapes[i];
+        //     if (shape.holes && shape.holes.length > 0) {
+        //         for (var j = 0; j < shape.holes.length; j++) {
+        //             var hole = shape.holes[j];
+        //             holeShapes.push(hole);
+        //         }
+        //     }
+        // }
+
+        // shapes.push.apply(shapes, holeShapes);
+
+        // var lineText = new THREE.Object3D();
+
+        // for (var i = 0; i < shapes.length; i++) {
+        //     var shape = shapes[i];
+        //     var points = shape.getPoints();
+        //     var geometry = new THREE.BufferGeometry().setFromPoints(points);
+        //     geometry.translate(xMid, 0, 0);
+        //     var lineMesh = new THREE.Line(geometry, matDark);
+        //     lineText.add(lineMesh);
+        // }
+
+        // lineText.position.z = 800;
+        // lineText.position.x = -350;
+        // lineText.position.y = 40;
+        // //lineText.rotation.y += 0.8
+        // lineText.lookAt(camera.position)
+
+        // scene.add(lineText);
 
 
-        var textGeo = new THREE.TextGeometry( 'Look up!', {
+        var textGeo = new THREE.TextGeometry('Look up!', {
             font: font,
             size: 80,
             height: 5,
@@ -317,10 +364,10 @@ function initText() {
             bevelSize: 4,
             bevelOffset: 0,
             bevelSegments: 5
-        } );
+        });
 
-        textGeo = new THREE.BufferGeometry().fromGeometry( textGeo );
-        var textMesh1 = new THREE.Mesh( textGeo, materials );
+        textGeo = new THREE.BufferGeometry().fromGeometry(textGeo);
+        var textMesh1 = new THREE.Mesh(textGeo, materials);
         textMesh1.position.y = -700;
         textMesh1.position.z = -10;
         textMesh1.position.x = 0;
@@ -328,12 +375,12 @@ function initText() {
         textMesh1.lookAt(camera.position)
         //textMesh1.rotation.x = 0;
         //textMesh1.rotation.y = Math.PI * 2;
-        scene.add( textMesh1 );
+        scene.add(textMesh1);
 
     }); //end load function
 }
 
-function getMessage(){
+function getMessage() {
     const urlParams = new URLSearchParams(window.location.search);
     const message = urlParams.get('m');
     return message || 'Hello!\nSurprise!'
@@ -373,4 +420,16 @@ function render() {
 }
 
 //Stats
-(function () { var script = document.createElement('script'); script.onload = function () { var stats = new Stats(); document.body.appendChild(stats.dom); requestAnimationFrame(function loop() { stats.update(); requestAnimationFrame(loop) }); }; script.src = '//mrdoob.github.io/stats.js/build/stats.min.js'; document.head.appendChild(script); })()
+(function () {
+    try {
+        var stats = new Stats();
+        document.body.appendChild(stats.dom);
+        console.log('stats done')
+        requestAnimationFrame(function loop() {
+            stats.update();
+            requestAnimationFrame(loop)
+        });
+    } catch (e) {
+        console.log('stat error', e)
+    }
+})()

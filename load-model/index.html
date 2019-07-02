@@ -30,19 +30,31 @@
             .hide{
                 display: none;
             }
+            #video{
+                float: left;
+                position: absolute;
+                top: 1px;
+                left:1px;
+                width: 1px;
+                height: 300px;
+                z-index: -1;
+            }
 		</style>
         <script src="scripts/three.min.js"></script>
         <script src="scripts/GLTFLoader.js"></script>
         <script src="scripts/LoaderUtils.js"></script>
         <script src="scripts/DeviceOrientationController.js"></script>
         <script src="scripts/kalman.min.js"></script>
+        <script src="scripts/stats.min.js"></script>
 	</head>
 	<body>
 		<div id="app-view"></div>
         <div id="no-sensors">Your browser doesn't seem to support generic sensors. If you are running Chrome, please enable the Generic Sensor API in about:flags to run this demo.</div>
-        <video id="video" width="1" height="1" style="visibility: hidden; float:left; position: absolute; top: 0;">Video stream not available.</video>
+        <video id="video" width="1" height="1" autoplay="" muted="" playsinline="" >Video stream not available.</video>
 
         <canvas id="video_canvas" width="2" height="2" style=" float:left; display: none;"></canvas>
+        <div id="debugDiv"></div>
+        <script src="scripts/debug.js"></script>
 		<script src="app.js"></script>
 	</body>
 </html>

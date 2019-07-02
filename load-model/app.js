@@ -36,9 +36,15 @@ var camera, scene, renderer, oriSensor,
 video = document.getElementById('video');
 canvas = document.getElementById('video_canvas');
 
+window.onerror = function(msg, url, linenumber) {
+    console.log('Error message: '+msg+'\nURL: '+url+'\nLine Number: '+linenumber);
+    return true;
+}
+
 initWebcam();
 
 function initWebcam() {
+    console.log('starting camera..')
     video = document.getElementById('video');
     canvas = document.getElementById('video_canvas');
     navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false })
@@ -53,6 +59,7 @@ function initWebcam() {
     video.onplaying = () => {
         // video.width = video.videoWidth;
         // video.height = video.videoHeight
+        console.log('camera started')
         init()
     }
 
@@ -179,21 +186,6 @@ function init() {
     hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
     hemiLight.position.set( -50, 50, -50 );
     scene.add( hemiLight );
-    // var hemiLightHelper = new THREE.HemisphereLightHelper( hemiLight, 10 );
-    // scene.add( hemiLightHelper );
-
-    //scene.background = new THREE.Color().setHSL( 0.6, 0, 1 );
-
-    //hemiLight.visible = true
-    //hemiLightHelper.visible = true
-    //renderer.gammaOutput = true
-    //oriSensor = new RelativeInclinationSensor({ frequency: 60, referenceFrame: "screen" });
-    //oriSensor.onreading = render;   // When the sensor sends new values, render again using those
-
-
-    acl = new LinearAccelerationSensor({ frequency: 60 ,referenceFrame: "screen" });
-    acl.addEventListener('activate', setToInitialState);
-    acl.start();
 
     texture = new THREE.VideoTexture(video);
     texture.minFilter = THREE.LinearFilter;
@@ -228,8 +220,10 @@ function init() {
             beeModel = gltf.scene;
             scene.add( gltf.scene );
             gltf.scene.position.y = -25;
-            gltf.scene.position.x = -100;
-            gltf.scene.position.z = -70;
+            gltf.scene.position.x = 0;
+            gltf.scene.position.z = -170;
+
+            gltf.scene.rotation.y -= 0.9;
 
             mixer = new THREE.AnimationMixer( gltf.scene );
             gltf.animations.forEach(( clip ) => {
@@ -294,8 +288,8 @@ function init() {
             var model = gltf.scene;
             scene.add(model);
             model.position.y = -15;
-            model.position.x = -20;
-            model.position.z = 0;
+            model.position.x = 0;
+            model.position.z = -20;
 
             drone = model
             
@@ -320,8 +314,8 @@ function init() {
     //TEST CUBE
     cube = new THREE.Mesh(new THREE.CubeGeometry(10, 10, 10), new THREE.MeshNormalMaterial());
     cube.position.y = -35;
-    cube.position.x = -100;
-    cube.position.z = 0;
+    cube.position.x = 0;
+    cube.position.z = -100;
     scene.add(cube);
     
     controls = new DeviceOrientationController( camera, renderer.domElement );
@@ -395,7 +389,7 @@ function render() {
 
     //mixer && mixer.update(getDelta())
     mixer && mixer.update(0.03)
-    dogAnimationsMixer && dogAnimationsMixer.update(0.03)    
+    dogAnimationsMixer && dogAnimationsMixer.update(0.03)
 
     texture.needsUpdate = true;
 
@@ -414,4 +408,17 @@ THREE.Utils = {
 };
 
 
-(function () { var script = document.createElement('script'); script.onload = function () { var stats = new Stats(); document.body.appendChild(stats.dom); requestAnimationFrame(function loop() { stats.update(); requestAnimationFrame(loop) }); }; script.src = '//mrdoob.github.io/stats.js/build/stats.min.js'; document.head.appendChild(script); })()
+//Stats
+(function () {
+    try {
+        var stats = new Stats();
+        document.body.appendChild(stats.dom);
+        console.log('stats done')
+        requestAnimationFrame(function loop() {
+            stats.update();
+            requestAnimationFrame(loop)
+        });
+    } catch (e) {
+        console.log('stat error', e)
+    }
+})()
